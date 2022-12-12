@@ -25,68 +25,31 @@ public class TokenHandler {
   private final JwtTokenProvider jwtTokenProvider;
   private final MemberRepository memberRepository;
 
-  public Long getIdFromToken() {
-
-
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-            .getRequestAttributes()).getRequest();
-
-    String token = jwtTokenProvider.resolveToken(request);
-    String email = jwtTokenProvider.getUserPk(token);
-    Member member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("정보 없음"));
-
-    Long member_id = member.getMember_id();  // member_id 에 토큰에서 뺴온 Long 값 저장
-    System.out.println("------------------------------member_id : " + member_id);
-    return member_id;
+    public Long getIdFromToken () {
+      log.info("토큰아이디 시작2@@@@@@@@@@@@@@@@");
+      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
+              .getRequestAttributes()).getRequest();
+      Cookie[] cookies = request.getCookies();
+      log.info("쿠키값 받기 시작@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      for (Cookie c : cookies) {
+        String cookiename = c.getName(); // 쿠키 이름 가져오기
+        String value = c.getValue(); // 쿠키 값 가져오기
+        if (cookiename.equals("X-AUTH-TOKEN")) {
+          if (!jwtTokenProvider.validateToken(value)) {
+            log.info("토큰 없음");
+            return null;
+          }
+          String email = jwtTokenProvider.getUserPk(value);
+          Member member_find = memberRepository.findByEmail(email)
+                  .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+          Long member_id = member_find.getMember_id();
+          log.info("멤버아이디 리턴@@@@@@@@@@@@@@@@");
+          return member_id;
+        } else {
+          log.info("토큰 없음");
+        }
+      }
+      return null;
+    }
   }
 
-  public Long getCookie(@CookieValue("X-AUTH-TOKEN") String token) {
-    Member member = memberRepository.findByEmail(jwtTokenProvider.getUserPk(token))
-            .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
-    return member.getMember_id();
-  }
-
-//<<<<<<< HEAD
-  public String getEmailFromToken() {
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-            .getRequestAttributes()).getRequest();
-
-    String token = jwtTokenProvider.resolveToken(request);
-    String email = jwtTokenProvider.getUserPk(token);
-    System.out.println("------------------------------member_id : " + email);
-    return email;
-  }
-//
-//
-//=======
-//
-//
-//    public Long getIdFromToken () {
-//      log.info("토큰아이디 시작2@@@@@@@@@@@@@@@@");
-//      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-//              .getRequestAttributes()).getRequest();
-//      Cookie[] cookies = request.getCookies();
-//      log.info("쿠키값 받기 시작@@@@@@@@@@@@@@@@@@@@@@@@@@");
-//      for (Cookie c : cookies) {
-//        String cookiename = c.getName(); // 쿠키 이름 가져오기
-//        String value = c.getValue(); // 쿠키 값 가져오기
-//        if (cookiename.equals("X-AUTH-TOKEN")) {
-//          if (!jwtTokenProvider.validateToken(value)) {
-//            log.info("토큰 없음");
-//            return null;
-//          }
-//          String email = jwtTokenProvider.getUserPk(value);
-//          Member member_find = memberRepository.findByEmail(email)
-//                  .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
-//          Long member_id = member_find.getMember_id();
-//          log.info("멤버아이디 리턴@@@@@@@@@@@@@@@@");
-//          return member_id;
-//        } else {
-//          log.info("토큰 없음");
-//        }
-//      }
-//      return null;
-//    }
-//  }
-}

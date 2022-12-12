@@ -22,13 +22,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @EntityGraph(attributePaths = "roles")
   Optional<Member> findByEmail(String email);
 
-<<<<<<< HEAD
-  @EntityGraph(attributePaths = {"imageSet"})
-  @Query("select m from Member m where m.member_id =:member_id")
-  Optional<Member> findByIdWithImages(Long member_id);
-
-=======
->>>>>>> 030fe50 ([준영] 로그인 유지 완료)
+//<<<<<<< HEAD
+//  @EntityGraph(attributePaths = {"imageSet"})
+//  @Query("select m from Member m where m.member_id =:member_id")
+//  Optional<Member> findByIdWithImages(Long member_id);
+//
+//=======
+//>>>>>>> 030fe50 ([준영] 로그인 유지 완료)
 
 //  @Modifying
 //  @Transactional

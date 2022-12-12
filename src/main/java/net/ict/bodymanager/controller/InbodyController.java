@@ -26,30 +26,30 @@ public class InbodyController {
     private final InbodyService inbodyService;
     private final ModelMapper modelMapper;
 
-    @GetMapping("/in")
-    public ResponseEntity<Map<String, String >> select(){
-        Map<String , String> resultMap = Map.of("message", "ok");
-        return ResponseEntity.ok(resultMap);
-    }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, String >> register(@RequestBody InbodyDTO inbodyDTO) {
+    public void register(@RequestBody InbodyDTO inbodyDTO) {
 
         LocalDate today = LocalDate.now();
 
-        if(inbodyService.check().contains(today)){
-            inbodyService.modify(inbodyDTO);
-            Map<String , String> resultMap = Map.of("message", "ok");
-            return ResponseEntity.ok(resultMap);
-        }else {
-            inbodyService.register(inbodyDTO);
-            Map<String , String> resultMap = Map.of("message", "ok");
-            return ResponseEntity.ok(resultMap);
-        }
+        JSONObject object = new JSONObject();
 
+        if (inbodyService.check().isEmpty()) {
+
+            inbodyService.register(inbodyDTO);
+            object.put("message", "ok");
+
+//            Map<String , String> resultMap = Map.of("message", "ok");
+//            return ResponseEntity.ok(resultMap);
+        } else {
+            inbodyService.modify(inbodyDTO);
+            object.put("message", "ok");
+//            Map<String , String> resultMap = Map.of("message", "ok");
+//            return ResponseEntity.ok(resultMap);
+        }
     }
 
-    @PostMapping(value = "/partmass", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/part", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String muscle(@RequestBody @Valid InbodyRequestDTO inbodyRequestDTO){
 
         JSONObject object = new JSONObject();

@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface FoodService {
-    String register(FoodRequestDTO foodRequestDTO);
+    void register(FoodRequestDTO foodRequestDTO);
 
     String readOne(String date);
 
     String remove(Long food_id);
 
-    String modify(FoodModifyRequestDTO foodDTO);
+    void modify(FoodModifyRequestDTO foodDTO);
 
 
     default Food dtoToEntity(FoodRequestDTO foodRequestDTO, Member member, LocalUploader localUploader, S3Uploader s3Uploader){
@@ -74,8 +74,6 @@ public interface FoodService {
 //        return food;
     }
 
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> 2b86566 (수정,,)
+

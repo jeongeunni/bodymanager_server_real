@@ -41,7 +41,7 @@ public class FoodServiceImpl implements FoodService {
     EntityManager entityManager;
 
     @Override
-    public String register(FoodRequestDTO foodRequestDTO) {
+    public void register(FoodRequestDTO foodRequestDTO) {
         Long member_id = tokenHandler.getIdFromToken();
         Member member = memberRepository.getById(member_id);
 
@@ -66,11 +66,12 @@ public class FoodServiceImpl implements FoodService {
             object.put("message","not found");
         }
 
-        return object.toString();
+
+//        return object.toString();
     }
 
     @Override
-    public String modify(FoodModifyRequestDTO foodDTO) {
+    public void modify(FoodModifyRequestDTO foodDTO) {
 
 
         Long member_id = tokenHandler.getIdFromToken();
@@ -105,7 +106,8 @@ public class FoodServiceImpl implements FoodService {
 
         }
 
-        return object.toString();
+
+//        return object.toString();
 
     }
 
@@ -142,6 +144,8 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public String readOne(String date) {
         Long member_id = tokenHandler.getIdFromToken();
+
+        log.info("--------------------------------------------------------------------"+member_id);
 
         QFood food = QFood.food;
         QMember member = QMember.member;

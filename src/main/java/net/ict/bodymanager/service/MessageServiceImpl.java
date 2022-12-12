@@ -131,7 +131,7 @@ public class MessageServiceImpl implements MessageService {
     // 로그인 - 회원일 경우 - 상대가 트레이너
     List<Tuple> trainerList = jpaQueryFactory.select(member.member_id, member.name, member.profile)
             .from(member)
-            .where(member.type.eq("0"))
+            .where(member.type.eq("user"))
             .fetch();
 
     List<Tuple> memberList = jpaQueryFactory.select(member.member_id, member.name, member.profile)

@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new CookieInterceptor())
             .addPathPatterns("/**") // 해당 경로에 접근하기 전에 인터셉터가 가로챈다.
-            .excludePathPatterns("/initial/login"); // 해당 경로는 인터셉터가 가로채지 않는다.
+            .excludePathPatterns("/initial/**"); // 해당 경로는 인터셉터가 가로채지 않는다.
     System.out.println("WebConfig+++++++++++++++++++++++++++++++");
   }
 }

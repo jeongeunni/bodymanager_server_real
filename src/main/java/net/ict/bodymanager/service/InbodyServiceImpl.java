@@ -240,6 +240,8 @@ public class InbodyServiceImpl extends QuerydslRepositorySupport implements Inbo
     Long member_id = tokenHandler.getIdFromToken();
     Member member = memberRepository.getById(member_id);
 
+    log.info(member_id);
+    log.info(member.getMember_id());
 /*    // 로그인한 회원 정보 가져오기
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
             .getRequestAttributes()).getRequest();
@@ -278,7 +280,7 @@ public class InbodyServiceImpl extends QuerydslRepositorySupport implements Inbo
     inbodyRepository.inbodyUpdate(inbodyDTO.getWeight(), inbodyDTO.getSMM(), inbodyDTO.getBFM(), inbodyDTO.getBMI(), inbodyDTO.getPBF(), inbodyDTO.getWHR(), inbodyDTO.getBMR(),
             inbodyDTO.getBody_muscle(), inbodyDTO.getLeft_hand_muscle(), inbodyDTO.getRight_hand_muscle(), inbodyDTO.getLeft_leg_muscle(), inbodyDTO.getRight_leg_muscle(),
             inbodyDTO.getBody_fat(), inbodyDTO.getLeft_hand_fat(), inbodyDTO.getRight_hand_fat(), inbodyDTO.getLeft_leg_fat(), inbodyDTO.getRight_leg_fat(),
-            member.getMember_id());
+            member.getMember_id(), LocalDate.now());
   }
 
   @Override
@@ -342,9 +344,9 @@ public class InbodyServiceImpl extends QuerydslRepositorySupport implements Inbo
 
     JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
     QInbody inbody = QInbody.inbody;
-    List<LocalDate> checkList = jpaQueryFactory.select(inbody.created_at).from(inbody).where(inbody.member.member_id.eq(member.getMember_id())).fetch();
+    List<LocalDate> checkList = jpaQueryFactory.select(inbody.created_at).from(inbody).where(inbody.member.member_id.eq(member.getMember_id()).and(inbody.created_at.eq(LocalDate.now()))).fetch();
 
-
+    log.info(checkList);
     return checkList;
   }
 

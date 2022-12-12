@@ -20,7 +20,6 @@ import java.util.Optional;
 public class MemberServiceImpl implements MemberService {
   private final MemberRepository memberRepository;
   private final PasswordEncoder passwordEncoder;
-  private final JwtTokenProvider jwtTokenProvider;
   private final LocalUploader localUploader;
   private final S3Uploader s3Uploader;
 

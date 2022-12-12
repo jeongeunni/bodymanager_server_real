@@ -1,5 +1,6 @@
 package net.ict.bodymanager.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
@@ -13,9 +14,9 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = "food_img")
+@ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Food {
-
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

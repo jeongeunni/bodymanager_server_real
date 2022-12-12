@@ -20,19 +20,15 @@ import java.util.stream.Collectors;
 public interface MemberService {
 
 
-////<<<<<<< HEAD
 //    Long register(MemberDTO memberDTO);
 //    MemberDTO readOne(Long member_id);
 //    void modify(MemberDTO memberDTO);
 //    String findEmail(String phone, String name);
 //    void remove(Long member_id);
-////=======
     String register(MemberDTO memberDTO);
     String findEmail(String phone, String name);
     void remove(Long member_id);
     void modify(MemberDTO memberDTO);
-//
-//>>>>>>> 030fe50 ([준영] 로그인 유지 완료)
 
     default Member dtoToEntity(MemberDTO memberDTO, LocalUploader localUploader, S3Uploader s3Uploader){
         MultipartFile[] files = memberDTO.getProfile();
@@ -61,17 +57,10 @@ public interface MemberService {
                    .gender(memberDTO.getGender())
                    .height(Double.parseDouble(memberDTO.getHeight()))
                    .remark(memberDTO.getRemark())
-////<<<<<<< HEAD
-//                   .profile(memberDTO.getProfile())
-//                   .birth(memberDTO.getBirth())
-//                   .type("admin")
-//                   .roles(Collections.singletonList("ROLE_ADMIN"))
-////=======
                    .profile(filename)
                    .birth(date)
                    .type("user")
                    .roles(Collections.singletonList("ROLE_USER"))
-//>>>>>>> 030fe50 ([준영] 로그인 유지 완료)
                    .build();
            return member;
     }
