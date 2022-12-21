@@ -2,14 +2,16 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.controller.dto.FoodModifyRequestDTO;
-import net.ict.bodymanager.controller.dto.FoodRequestDTO;
+import net.ict.bodymanager.dto.FoodModifyRequestDTO;
+import net.ict.bodymanager.dto.FoodRequestDTO;
 import net.ict.bodymanager.repository.FoodRepository;
 import net.ict.bodymanager.service.FoodService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController

@@ -23,12 +23,9 @@ public class JwtTokenProvider {
   @Value("${net.ict.bodymanager.secret}")
   private String secretKey;
 
-  // ACCESS-토큰 유효시간 60분
-  private long tokenValidTime = 60 * 60L;
-
-  // REFRESH-토큰 유효시간 2주
-  private long r_tokenValidTime = 14 * 24 * 60 * 60L;
-
+  // 토큰 유효시간 60분
+  private long tokenValidTime = 60 * 60 * 1000L;
+  private long r_tokenValidTime = 24 * 60 * 60 * 1000L;
 
   private final UserDetailsService userDetailsService;
 
@@ -39,7 +36,7 @@ public class JwtTokenProvider {
   }
 
   // JWT 토큰(access Token) 생성
-  public String createAccessToken(String userPk, List<String> roles) {
+  public String createToken(String userPk, List<String> roles) {
     Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
     claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
     Date now = new Date();
@@ -75,15 +72,16 @@ public class JwtTokenProvider {
     return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
   }
 
-  // Request의 Header에서 token 값을 가져옵니다. "X-ACCESS-TOKEN" : "TOKEN값'
+  // Request의 Header에서 token 값을 가져옵니다. "X-AUTH-TOKEN" : "TOKEN값'
   public String resolveToken(HttpServletRequest request) {
-    return request.getHeader("X-ACCESS-TOKEN");
+    return request.getHeader("X-AUTH-TOKEN");
   }
 
   // 토큰의 유효성 + 만료일자 확인
   public boolean validateToken(String jwtToken) throws JwtException {
     try {
       Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+
       return !claims.getBody().getExpiration().before(new Date());
     } catch (Exception e) {
       return false;

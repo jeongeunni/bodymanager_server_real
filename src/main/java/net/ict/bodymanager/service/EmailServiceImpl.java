@@ -2,12 +2,18 @@ package net.ict.bodymanager.service;
 
 
 import lombok.AllArgsConstructor;
-import net.ict.bodymanager.controller.dto.MailDTO;
+import net.ict.bodymanager.dto.MailDTO;
+import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.repository.MemberRepository;
+import org.json.JSONObject;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.MimeMessage;
+import javax.swing.text.html.Option;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
