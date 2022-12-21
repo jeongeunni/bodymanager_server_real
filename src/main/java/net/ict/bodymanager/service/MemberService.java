@@ -7,11 +7,9 @@ import net.ict.bodymanager.util.LocalUploader;
 import net.ict.bodymanager.util.S3Uploader;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,12 +17,6 @@ import java.util.stream.Collectors;
 
 public interface MemberService {
 
-
-//    Long register(MemberDTO memberDTO);
-//    MemberDTO readOne(Long member_id);
-//    void modify(MemberDTO memberDTO);
-//    String findEmail(String phone, String name);
-//    void remove(Long member_id);
     String register(MemberDTO memberDTO);
     String findEmail(String phone, String name);
     void remove(Long member_id);
@@ -40,8 +32,7 @@ public interface MemberService {
             uploadedFilePaths.addAll(localUploader.uploadLocal(file));
         }
         List<String> s3Paths =
-                uploadedFilePaths.stream().map(fileName -> s3Uploader.
-                        upload(fileName)).collect(Collectors.toList());
+                uploadedFilePaths.stream().map(s3Uploader::upload).collect(Collectors.toList());
         String filename = s3Paths.get(0);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

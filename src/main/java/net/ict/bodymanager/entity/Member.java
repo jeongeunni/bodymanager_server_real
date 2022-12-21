@@ -2,15 +2,15 @@ package net.ict.bodymanager.entity;
 
 
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
@@ -45,8 +45,11 @@ public class Member extends BaseEntity implements UserDetails {
   @Column(nullable = false)
   private String type;  //0=user, 1=trainer , 2=admin , 3=Uncertified(소셜로그인미인증), 4=dormant(휴면)
 
-  @Column(length = 500)
+  @Column(length = 500 , nullable = false)
   private String profile;
+
+  @Column(length = 500)
+  private String refreshToken;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @Builder.Default

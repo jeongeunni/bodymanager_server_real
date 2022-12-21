@@ -5,18 +5,12 @@ import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.filter.JwtTokenProvider;
 import net.ict.bodymanager.repository.MemberRepository;
-import org.json.JSONObject;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -26,7 +20,7 @@ public class TokenHandler {
   private final MemberRepository memberRepository;
 
     public Long getIdFromToken () {
-      log.info("토큰아이디 시작2@@@@@@@@@@@@@@@@");
+      log.info("토큰아이디 시작@@@@@@@@@@@@@@@@");
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes()).getRequest();
       Cookie[] cookies = request.getCookies();
@@ -34,7 +28,7 @@ public class TokenHandler {
       for (Cookie c : cookies) {
         String cookiename = c.getName(); // 쿠키 이름 가져오기
         String value = c.getValue(); // 쿠키 값 가져오기
-        if (cookiename.equals("X-AUTH-TOKEN")) {
+        if (cookiename.equals("X-ACCESS-TOKEN")) {
           if (!jwtTokenProvider.validateToken(value)) {
             log.info("토큰 없음");
             return null;

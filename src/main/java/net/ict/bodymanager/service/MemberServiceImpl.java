@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.dto.MemberDTO;
 import net.ict.bodymanager.entity.Member;
-import net.ict.bodymanager.filter.JwtTokenProvider;
 import net.ict.bodymanager.repository.MemberRepository;
 import net.ict.bodymanager.util.LocalUploader;
 import net.ict.bodymanager.util.S3Uploader;
@@ -29,7 +28,6 @@ public class MemberServiceImpl implements MemberService {
     Member member = dtoToEntity(memberDTO ,localUploader,s3Uploader);
     member.changePassword(passwordEncoder.encode(memberDTO.getPassword()));
     Long member_id = memberRepository.save(member).getMember_id();
-
     JSONObject join = new JSONObject();
     join.put("message", "ok");
     return join.toString();
