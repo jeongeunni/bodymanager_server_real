@@ -1,7 +1,7 @@
 package net.ict.bodymanager.service;
 
-import net.ict.bodymanager.dto.OrderListDTO;
-import net.ict.bodymanager.dto.PTInfoDTO;
+import net.ict.bodymanager.controller.dto.OrderListDTO;
+import net.ict.bodymanager.controller.dto.PTInfoDTO;
 import net.ict.bodymanager.entity.*;
 
 import java.time.LocalDate;

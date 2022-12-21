@@ -8,7 +8,7 @@ import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.controller.TokenHandler;
-import net.ict.bodymanager.dto.OrderListDTO;
+import net.ict.bodymanager.controller.dto.OrderListDTO;
 import net.ict.bodymanager.entity.*;
 import net.ict.bodymanager.repository.*;
 import org.json.JSONArray;
@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -68,9 +67,9 @@ public class AccountServiceImpl implements AccountService {
     JSONObject memberIn = new JSONObject();
 
     if (memList.get(0).toArray()[0] == null) {
-      memberIn.put("end-date", "");
+      memberIn.put("end_date", "");
     } else {
-      memberIn.put("end-date", memList.get(0).toArray()[0].toString());
+      memberIn.put("end_date", memList.get(0).toArray()[0].toString());
     }
     memberIn.put("pt_remain_count", memList.get(0).toArray()[1]);
 
