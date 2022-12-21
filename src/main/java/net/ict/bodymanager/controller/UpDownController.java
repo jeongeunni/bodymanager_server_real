@@ -2,8 +2,8 @@ package net.ict.bodymanager.controller;
 
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
-import net.ict.bodymanager.dto.upload.UploadFileDTO;
-import net.ict.bodymanager.dto.upload.UploadResultDTO;
+import net.ict.bodymanager.controller.dto.upload.UploadFileDTO;
+import net.ict.bodymanager.controller.dto.upload.UploadResultDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;

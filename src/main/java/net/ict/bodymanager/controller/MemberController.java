@@ -2,7 +2,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.dto.MemberDTO;
+import net.ict.bodymanager.controller.dto.MemberDTO;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.filter.JwtTokenProvider;
 import net.ict.bodymanager.repository.MemberRepository;

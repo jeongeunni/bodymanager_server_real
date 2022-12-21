@@ -1,7 +1,7 @@
 package net.ict.bodymanager.service;
 
 
-import net.ict.bodymanager.dto.MemberDTO;
+import net.ict.bodymanager.controller.dto.MemberDTO;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.util.LocalUploader;
 import net.ict.bodymanager.util.S3Uploader;
