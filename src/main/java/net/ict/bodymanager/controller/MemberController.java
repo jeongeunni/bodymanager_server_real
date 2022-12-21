@@ -2,7 +2,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.dto.MemberDTO;
+import net.ict.bodymanager.controller.dto.MemberDTO;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.filter.JwtTokenProvider;
 import net.ict.bodymanager.repository.MemberRepository;
@@ -14,8 +14,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

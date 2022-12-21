@@ -1,7 +1,7 @@
 package net.ict.bodymanager.service;
 
-import net.ict.bodymanager.dto.InbodyDTO;
-import net.ict.bodymanager.dto.InbodyRequestDTO;
+import net.ict.bodymanager.controller.dto.InbodyDTO;
+import net.ict.bodymanager.controller.dto.InbodyRequestDTO;
 import net.ict.bodymanager.entity.Inbody;
 import net.ict.bodymanager.entity.Member;
 

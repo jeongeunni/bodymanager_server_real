@@ -2,7 +2,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.dto.MailDTO;
+import net.ict.bodymanager.controller.dto.MailDTO;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.repository.MemberRepository;
 import net.ict.bodymanager.service.EmailService;

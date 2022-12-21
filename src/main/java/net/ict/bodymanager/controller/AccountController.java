@@ -3,7 +3,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.dto.OrderListDTO;
+import net.ict.bodymanager.controller.dto.OrderListDTO;
 import net.ict.bodymanager.service.AccountService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class AccountController {
         return accountService.infoList();
     }
 
-    @GetMapping("/list")
+    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String orderList(@RequestBody Map<String, String> page){
         return accountService.orderList(page.get("page"), page.get("limit"));
     }

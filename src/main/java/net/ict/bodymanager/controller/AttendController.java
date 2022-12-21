@@ -2,7 +2,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.dto.AttendDTO;
+import net.ict.bodymanager.controller.dto.AttendDTO;
 import net.ict.bodymanager.service.AttendService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
