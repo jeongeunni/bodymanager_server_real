@@ -41,7 +41,7 @@ public class FoodServiceImpl implements FoodService {
     EntityManager entityManager;
 
     @Override
-    public void register(FoodRequestDTO foodRequestDTO) {
+    public String register(FoodRequestDTO foodRequestDTO) {
         Long member_id = tokenHandler.getIdFromToken();
         Member member = memberRepository.getById(member_id);
 
@@ -67,11 +67,11 @@ public class FoodServiceImpl implements FoodService {
         }
 
 
-//        return object.toString();
+        return object.toString();
     }
 
     @Override
-    public void modify(FoodModifyRequestDTO foodDTO) {
+    public String modify(FoodModifyRequestDTO foodDTO) {
 
 
         Long member_id = tokenHandler.getIdFromToken();
@@ -107,7 +107,7 @@ public class FoodServiceImpl implements FoodService {
         }
 
 
-//        return object.toString();
+        return object.toString();
 
     }
 
@@ -144,6 +144,7 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public String readOne(String date) {
         Long member_id = tokenHandler.getIdFromToken();
+        String[] a = {"아침", "점심", "저녁"};
 
         log.info("--------------------------------------------------------------------"+member_id);
 
@@ -188,6 +189,8 @@ public class FoodServiceImpl implements FoodService {
         }
         else {
 
+            if(readlunch.isEmpty() && readdinner.isEmpty()){
+
 
             for (int i = 0; i < readbreakfast.size(); i++) {
                 object = new JSONObject();
@@ -198,9 +201,12 @@ public class FoodServiceImpl implements FoodService {
                 object.put("grade", readbreakfast.get(i).toArray()[4]);
 
                 data.put("breakfast", object);
+                data.put("lunch","");
+                data.put("dinner","");
 
                 log.info(data);
-            }
+            }}
+            if(readbreakfast.isEmpty()  && readdinner.isEmpty()){
             for (int i = 0; i < readlunch.size(); i++) {
                 object = new JSONObject();
                 object.put("id", readlunch.get(i).toArray()[0]);
@@ -210,7 +216,11 @@ public class FoodServiceImpl implements FoodService {
                 object.put("grade", readlunch.get(i).toArray()[4]);
 
                 data.put("lunch", object);
-            }
+                data.put("breakfast","");
+                data.put("dinner","");
+            }}
+
+            if(readbreakfast.isEmpty() && readlunch.isEmpty()){
             for (int i = 0; i < readdinner.size(); i++) {
                 object = new JSONObject();
                 object.put("id", readdinner.get(i).toArray()[0]);
@@ -220,7 +230,9 @@ public class FoodServiceImpl implements FoodService {
                 object.put("grade", readdinner.get(i).toArray()[4]);
 
                 data.put("dinner", object);
-            }
+                data.put("breakfast","");
+                data.put("lunch","");
+            }}
 
             log.info(data);
 
