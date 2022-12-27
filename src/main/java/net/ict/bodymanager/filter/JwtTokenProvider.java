@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -25,9 +24,9 @@ public class JwtTokenProvider {
     private String secretKey;
 
     // access 토큰 유효시간 60분
-    private final long tokenValidTime = 60 * 60L;
+    private final long tokenValidTime = 60 * 60 * 1000L;
     // refresh 토큰 유효시간 2주
-    private final long r_tokenValidTime = 14 * 24 * 60 * 60L;
+    private final long r_tokenValidTime = 14 * 24 * 60 * 60 * 1000L;
 
     private final UserDetailsService userDetailsService;
 
@@ -62,8 +61,9 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰(refresh Token) 생성
-    public String createRefreshToken(String userPk) {
+    public String createRefreshToken(String userPk, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
+        claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims) // 정보 저장
@@ -82,6 +82,30 @@ public class JwtTokenProvider {
                 .sameSite("None")
                 .httpOnly(true)
                 .build();
+    }
+
+    // JWT 토큰(access Token)쿠키 삭제
+    public String deleteCookie() {
+        ResponseCookie cookie = ResponseCookie.from("X-AUTH-TOKEN", "")
+                .maxAge(0)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        return cookie.toString();
+    }
+
+    // JWT 토큰(refresh Token)쿠키 삭제
+    public String deleteR_Cookie() {
+        ResponseCookie cookie = ResponseCookie.from("X-AUTH-REFRESH", "")
+                .maxAge(0)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        return cookie.toString();
     }
 
     // JWT 토큰에서 인증 정보 조회

@@ -25,20 +25,15 @@ public class CookieInterceptor implements HandlerInterceptor {
                 String cookiename = c.getName(); // 쿠키 이름 가져오기
                 String value = c.getValue(); // 쿠키 값 가져오기
 
-                log.info("cookiename :" + cookiename);
 
                 if (cookiename.equals("X-AUTH-TOKEN")) {
                     response.setHeader("X-AUTH-TOKEN", value);
-                    log.info("access value : " + value);
                 } else if (cookiename.equals("X-AUTH-REFRESH")) {
                     response.setHeader("X-AUTH-REFRESH", value);
-                    log.info("refresh value : " + value);
                 }
             }
-            log.info("true---");
             return true;
         }
-        log.info("false---");
         return false;
     }
 

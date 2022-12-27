@@ -88,16 +88,16 @@ public class MemberServiceImpl implements MemberService {
         for (Cookie c : cookies) {
             String cookiename = c.getName(); // 쿠키 이름 가져오기
             String value = c.getValue(); // 쿠키 값 가져오기
-            if (cookiename.equals("X-AUTH-TOKEN")) {
-                log.info("여긴 실행됨?");
-                String email = jwtTokenProvider.getUserPk(value);
-                log.info("UserPk 실행완료");
-                memberRepository.deleteToken(email);  //DB에 있는 리프레시 토큰 값 삭제
-                c.setMaxAge(0); //X-AUTH-TOKEN 없애기
-                object.put("message", "ok");
-                response.setHeader("X-AUTH-TOKEN", null);
-                log.info("로그이웃 성공");
-                return object.toString();
+            if (cookiename.equals("X-AUTH-TOKEN") || cookiename.equals("X-AUTH-REFRESH")) {
+                if(jwtTokenProvider.validateToken(value)) {
+                    String email = jwtTokenProvider.getUserPk(value);
+                    memberRepository.deleteToken(email);  //DB에 있는 리프레시 토큰 값 삭제
+                    response.setHeader("Set-cookie", jwtTokenProvider.deleteCookie());
+                    response.addHeader("Set-Cookie", jwtTokenProvider.deleteR_Cookie());
+                    log.info("로그이웃 성공");
+                    object.put("message", "ok");
+                    return object.toString();
+                }
             }
         }
         log.info("로그이웃 실패");
@@ -108,31 +108,87 @@ public class MemberServiceImpl implements MemberService {
     //로그인유지
     @Override
     public String loginning(HttpServletRequest req) {
+        String access_token = "";
+        String refresh_token = "";
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
         JSONObject fir_object = new JSONObject();
         JSONObject sec_object = new JSONObject();
         Cookie[] cookies = req.getCookies(); // 모든 쿠키 가져오기
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                String cookiename = c.getName(); // 쿠키 이름 가져오기
-                String value = c.getValue(); // 쿠키 값 가져오기
 
-                log.info("cookiename : " + cookiename);
+        for (Cookie c : cookies) {
+            String cookiename = c.getName(); // 쿠키 이름 가져오기
+            String value = c.getValue(); // 쿠키 값 가져오기
 
-                if (cookiename.equals("X-AUTH-TOKEN")) {
-                    String email = jwtTokenProvider.getUserPk(value);
-                    Member member = memberRepository.findByEmail(email)
-                            .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
-                    String name = member.getName();
-                    String profile = member.getProfile();
-                    String type = member.getType();
-                    fir_object.put("message", "ok");
-                    fir_object.put("data", sec_object);
-                    sec_object.put("name", name);
-                    sec_object.put("profile", profile);
-                    sec_object.put("type", type);
-                    return fir_object.toString();
-                }
+            if (cookiename.equals("X-AUTH-TOKEN")) {
+                access_token = value;
+            } else if (cookiename.equals("X-AUTH-REFRESH")) {
+                refresh_token = value;
             }
+        }
+        //(CASE 1) access token이 유효하고, refresh token이 유효하다면
+        if (jwtTokenProvider.validateToken(access_token) && jwtTokenProvider.validateToken(refresh_token)) {
+            log.info("access와 refresh가 유효함");
+            String email = jwtTokenProvider.getUserPk(access_token);
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+            String DB_refreshToken = member.getRefreshToken();
+            if (DB_refreshToken.equals(refresh_token)) {  //DB에 있는 리프레시 토큰값과 동일하다면
+                log.info("멤버아이디 리턴@@@@@@@@@@@@@@@@");
+                String name = member.getName();
+                String profile = member.getProfile();
+                String type = member.getType();
+                fir_object.put("message", "ok");
+                fir_object.put("data", sec_object);
+                sec_object.put("name", name);
+                sec_object.put("profile", profile);
+                sec_object.put("type", type);
+                return fir_object.toString();
+            } else { //DB에 있는 리프레시 토큰값과 동일하지 않다면
+                log.info("access와 refresh가 유효하지만 DB에 있는 refresh와 동일하지 않음");
+                response.setHeader("Set-cookie", jwtTokenProvider.deleteCookie());
+                response.addHeader("Set-Cookie", jwtTokenProvider.deleteR_Cookie());
+            }
+
+            //(CASE 2) access token이 유효하고, refresh token이 유효하지 않다면
+        } else if (jwtTokenProvider.validateToken(access_token) && !jwtTokenProvider.validateToken(refresh_token)) {
+            log.info("access가 유효하지만 refresh가 유효하지 않음");
+            response.setHeader("Set-cookie", jwtTokenProvider.deleteCookie());
+            response.addHeader("Set-Cookie", jwtTokenProvider.deleteR_Cookie());
+
+            //(CASE 3) access token이 유효하지 않고, refresh token이 유효하다면
+        } else if (!jwtTokenProvider.validateToken(access_token) && jwtTokenProvider.validateToken(refresh_token)) {
+            log.info("access 토큰 유효하지 않지만 , refresh 토큰 유효성 검사 성공");
+            log.info("새로운 access token 발급");
+            String email = jwtTokenProvider.getUserPk(refresh_token);
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+            String DB_refreshToken = member.getRefreshToken();
+            if (DB_refreshToken.equals(refresh_token)) {  //DB에 있는 리프레시 토큰값과 동일하다면
+                log.info("멤버아이디 리턴@@@@@@@@@@@@@@@@");
+                String token = jwtTokenProvider.createToken(member.getUsername(), member.getRoles()); //토큰 생성
+                response.setHeader("X-AUTH-TOKEN", token);   //헤더 "X-AUTH-TOKEN" 에 토큰 값 저장하려 했지만 헤더에서 값을 못빼옴 일단 헤더에 넣긴했음
+                ResponseCookie cookie = jwtTokenProvider.makeCookie(token);
+                response.addHeader("Set-Cookie", cookie.toString());
+                String name = member.getName();
+                String profile = member.getProfile();
+                String type = member.getType();
+                fir_object.put("message", "ok");
+                fir_object.put("data", sec_object);
+                sec_object.put("name", name);
+                sec_object.put("profile", profile);
+                sec_object.put("type", type);
+                return fir_object.toString();
+            } else { //DB에 있는 리프레시 토큰값과 동일하지 않다면
+                log.info("access와 refresh가 유효하지만 DB에 있는 refresh와 동일하지 않음");
+                response.setHeader("Set-cookie", jwtTokenProvider.deleteCookie());
+                response.addHeader("Set-Cookie", jwtTokenProvider.deleteR_Cookie());
+            }
+            //(CASE 4)access token이 유효하지 않고, refresh token이 유효하지 않다면
+        } else if (!jwtTokenProvider.validateToken(access_token) && !jwtTokenProvider.validateToken(refresh_token)) {
+            log.info("access와 refresh가 유효하지 않음");
+            response.setHeader("Set-cookie", jwtTokenProvider.deleteCookie());
+            response.addHeader("Set-Cookie", jwtTokenProvider.deleteR_Cookie());
         }
         fir_object.put("message", "not auth");
         return fir_object.toString();
@@ -160,7 +216,7 @@ public class MemberServiceImpl implements MemberService {
             ResponseCookie cookie = jwtTokenProvider.makeCookie(token);
             response.setHeader("Set-Cookie", cookie.toString());
 //------
-            String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername());
+            String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername(), member.getRoles());
             response.setHeader("X-AUTH-REFRESH", refreshToken);   //헤더 "X-AUTH-TOKEN" 에 토큰 값 저장하려 했지만 헤더에서 값을 못빼옴 일단 헤더에 넣긴했음
 
             ResponseCookie refreshCookie = jwtTokenProvider.makeR_Cookie(refreshToken);

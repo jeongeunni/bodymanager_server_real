@@ -47,6 +47,7 @@ public class Member extends BaseEntity implements UserDetails {
 
   @Column(length = 500)
   private String profile;
+
   @Column(length = 500)
   private String refreshToken;
 
