@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 public interface MemberService {
 
-    String register(MemberDTO memberDTO);
+    String join(MemberDTO memberDTO);
     String findEmail(String phone, String name);
-    String deleteCookie(HttpServletRequest req);
-    String getCookie(HttpServletRequest req);
+    String logout(HttpServletRequest req);
+    String loginning(HttpServletRequest req);
     String login(Map<String, String> user, HttpServletResponse response);
     ResponseEntity<Map<String, String>> emailDuple(Member member);
     ResponseEntity<Map<String, String>> phoneDuple(Member member);
@@ -44,8 +44,8 @@ public interface MemberService {
             uploadedFilePaths.addAll(localUploader.uploadLocal(file));
         }
         List<String> s3Paths =
-                uploadedFilePaths.stream().map(fileName -> s3Uploader.
-                        upload(fileName)).collect(Collectors.toList());
+                uploadedFilePaths.stream().map(s3Uploader::upload).collect(Collectors.toList());
+
         String filename = s3Paths.get(0);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

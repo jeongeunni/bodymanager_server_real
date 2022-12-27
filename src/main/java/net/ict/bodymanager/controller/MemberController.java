@@ -39,7 +39,7 @@ public class MemberController {
     @PostMapping(value = "/join", consumes = {"multipart/form-data"})
     public String join(@ModelAttribute MemberDTO memberDTO) {
         //비동기 통신으로 받아줘야하니까 @RequestBody를 사용
-        return memberService.register(memberDTO);
+        return memberService.join(memberDTO);
     }
 
     //이메일 중복확인
@@ -57,13 +57,13 @@ public class MemberController {
     //로그아웃
     @GetMapping("/logout")
     public String logout(HttpServletRequest req) {
-        return memberService.deleteCookie(req);
+        return memberService.logout(req);
     }
 
     //로그인 유지 - HttpServletRequest 에서 토큰 가져오기
     @GetMapping("/login")
-    public String getCookie(HttpServletRequest req) {
-        return memberService.getCookie(req);
+    public String loginning(HttpServletRequest req) {
+        return memberService.loginning(req);
     }
 
     // 로그인
