@@ -5,11 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.log4j.Log4j2;
+import net.ict.bodymanager.filter.JwtTokenProvider;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 @Log4j2
 public class CookieInterceptor implements HandlerInterceptor {
+
     @Override
     public boolean preHandle(
             HttpServletRequest request,
@@ -22,12 +24,15 @@ public class CookieInterceptor implements HandlerInterceptor {
             for (Cookie c : cookies) {
                 String cookiename = c.getName(); // 쿠키 이름 가져오기
                 String value = c.getValue(); // 쿠키 값 가져오기
+
+                log.info("cookiename :" + cookiename);
+
                 if (cookiename.equals("X-AUTH-TOKEN")) {
                     response.setHeader("X-AUTH-TOKEN", value);
-                    log.info("value : " + value);
+                    log.info("access value : " + value);
                 } else if (cookiename.equals("X-AUTH-REFRESH")) {
                     response.setHeader("X-AUTH-REFRESH", value);
-                    log.info("value : " + value);
+                    log.info("refresh value : " + value);
                 }
             }
             log.info("true---");

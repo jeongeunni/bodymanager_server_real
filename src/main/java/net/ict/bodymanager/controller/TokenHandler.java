@@ -33,27 +33,32 @@ public class TokenHandler {
     public Long getIdFromToken() {
         String access_token = "";
         String refresh_token = "";
-        log.info("토큰아이디 시작@@@@@@@@@@@@@@@@");
 //        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
 //                .getRequestAttributes()).getRequest();
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
         Cookie[] cookies = request.getCookies();
-        log.info("쿠키값 받기 시작@@@@@@@@@@@@@@@@@@@@@@@@@@");
         for (Cookie c : cookies) {
             String cookiename = c.getName(); // 쿠키 이름 가져오기
             String value = c.getValue(); // 쿠키 값 가져오기
+
+            log.info("cookiename : " + cookiename);
+
             if (cookiename.equals("X-AUTH-TOKEN")) {
                 access_token = value;
+                response.setHeader("X-AUTH-TOKEN", access_token);
                 log.info("access_token : " + access_token);
-            }
-            if (cookiename.equals("X-AUTH-REFRESH")) {
+            } else if (cookiename.equals("X-AUTH-REFRESH")) {
                 refresh_token = value;
+                response.setHeader("X-AUTH-REFRESH", refresh_token);
                 log.info("refresh_token : " + refresh_token);
             }
-            log.info("access_token22 : " + access_token);
-            //access token이 유효하고, refresh token이 유효하다면
+
+            log.info("밖으로 나온 access_token : " + access_token);
+            log.info("밖으로 나온 refresh_token : " + refresh_token);
+
+            //(CASE 1) access token이 유효하고, refresh token이 유효하다면
             if (jwtTokenProvider.validateToken(access_token) && jwtTokenProvider.validateToken(refresh_token)) {
                 String email = jwtTokenProvider.getUserPk(access_token);
                 Member member_find = memberRepository.findByEmail(email)
@@ -63,21 +68,30 @@ public class TokenHandler {
                 if (DB_refreshToken.equals(refresh_token)) {  //DB에 있는 리프레시 토큰값과 동일하다면
                     log.info("멤버아이디 리턴@@@@@@@@@@@@@@@@");
                     return member_id;
-                }
-                else { //DB에 있는 리프레시 토큰값과 동일하지 않다면
+                } else { //DB에 있는 리프레시 토큰값과 동일하지 않다면
+                    log.info("access와 refresh가 유효하지만 DB에 있는 refresh와 동일하지 않음");
                     return null;
                 }
-                //access token이 유효하지 않고, refresh token이 유효하다면
-            } else if (!jwtTokenProvider.validateToken(access_token) && jwtTokenProvider.validateToken(refresh_token)) {
-                log.info("access 토큰 유효성 검사 실패 , refresh 토큰 유효성 검사 성공");
+
+                //(CASE 2) access token이 유효하고, refresh token이 유효하지 않다면
+            } else if (jwtTokenProvider.validateToken(access_token) && !jwtTokenProvider.validateToken(refresh_token)) {
+                log.info("access가 유효하지만 refresh가 유효하지 않음");
                 return null;
-                //access token이 유효하지 않고, refresh token이 유효하지않다면
+
+                //(CASE 3) access token이 유효하지 않고, refresh token이 유효하다면
             } else if (!jwtTokenProvider.validateToken(access_token) && jwtTokenProvider.validateToken(refresh_token)) {
+                log.info("access 토큰 유효하지 않지만 , refresh 토큰 유효성 검사 성공");
+                log.info("새로운 access token 발급");
 
+
+                return null;
+
+                //(CASE 4)access token이 유효하지 않고, refresh token이 유효하지 않다면
+            } else if (!jwtTokenProvider.validateToken(access_token) && !jwtTokenProvider.validateToken(refresh_token)) {
+                log.info("access와 refresh가 유효하지 않음");
+                return null;
             }
-
         }
-
         return null;
     }
 

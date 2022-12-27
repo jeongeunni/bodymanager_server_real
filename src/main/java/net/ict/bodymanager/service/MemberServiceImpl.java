@@ -115,6 +115,9 @@ public class MemberServiceImpl implements MemberService {
             for (Cookie c : cookies) {
                 String cookiename = c.getName(); // 쿠키 이름 가져오기
                 String value = c.getValue(); // 쿠키 값 가져오기
+
+                log.info("cookiename : " + cookiename);
+
                 if (cookiename.equals("X-AUTH-TOKEN")) {
                     String email = jwtTokenProvider.getUserPk(value);
                     Member member = memberRepository.findByEmail(email)
@@ -160,11 +163,10 @@ public class MemberServiceImpl implements MemberService {
             String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername());
             response.setHeader("X-AUTH-REFRESH", refreshToken);   //헤더 "X-AUTH-TOKEN" 에 토큰 값 저장하려 했지만 헤더에서 값을 못빼옴 일단 헤더에 넣긴했음
 
-            ResponseCookie refreshCookie = jwtTokenProvider.makeR_Cookie(token);
-            response.setHeader("Set-Cookie", refreshCookie.toString());
+            ResponseCookie refreshCookie = jwtTokenProvider.makeR_Cookie(refreshToken);
+            response.addHeader("Set-Cookie", refreshCookie.toString());
 
             memberRepository.updateToken(refreshToken, member.getEmail());  //DB에 저장
-
             System.out.println("cookie.getName() : " + cookie.getName());
             System.out.println("cookie.getValue() : " + cookie.getValue());
             System.out.println("refreshCookie.getName() : " + refreshCookie.getName());

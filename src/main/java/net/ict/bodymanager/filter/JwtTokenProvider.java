@@ -60,6 +60,7 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .build();
     }
+
     // JWT 토큰(refresh Token) 생성
     public String createRefreshToken(String userPk) {
         Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
