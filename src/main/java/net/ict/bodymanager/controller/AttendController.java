@@ -31,18 +31,10 @@ public class AttendController {
         return ResponseEntity.ok(result);
     }
 
-//    @PostMapping(value ="/modify")  //, consumes = MediaType.APPLICATION_JSON_VALUE) 퇴장
-//    public ResponseEntity<Map<String, String>>modify(){
-//        attendService.modify();
-//        Map<String,String> result = Map.of("message","ok");
-//        return ResponseEntity.ok(result);
-//    }
-
     @GetMapping(value = "/readDay")
     public String readDay(){
         return attendService.readDay();
     }
-
 
     @PostMapping(value = "/readmonth")
     public String readMonth(@RequestBody Map<String, Object > map){

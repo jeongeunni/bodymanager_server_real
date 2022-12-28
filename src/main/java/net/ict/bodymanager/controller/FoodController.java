@@ -26,18 +26,8 @@ public class FoodController {
     private final FoodService foodService;
 
 
-
-//    @PostMapping(value = "/register", consumes = {"multipart/form-data"})
-//    public ResponseEntity<Map<String,Object>> registerPost(@ModelAttribute FoodRequestDTO foodRequestDTO){
-//        foodService.register(foodRequestDTO);
-//        Map<String, Object> result = Map.of("message","ok");
-//        return ResponseEntity.ok(result);
-//    }
-
     @PostMapping(value = "/register", consumes = {"multipart/form-data"})
     public String registerPost(@ModelAttribute FoodRequestDTO foodRequestDTO){
-
-//         foodService.register(foodRequestDTO);
         return foodService.register(foodRequestDTO);
     }
 
@@ -48,16 +38,12 @@ public class FoodController {
 
     @PostMapping(value = "/modify", consumes = {"multipart/form-data"})
     public String modify(@ModelAttribute FoodModifyRequestDTO foodDTO){
-
-        log.info("******************************************");
-        log.info(foodDTO.getFood_id()+"***********************************");
         return foodService.modify(foodDTO);
 
     }
 
     @DeleteMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String delete(@RequestBody Map<String,Object> map){
-
         return foodService.remove(Long.valueOf(map.get("food_id").toString()));
 
     }}
