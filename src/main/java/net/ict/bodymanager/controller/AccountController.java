@@ -31,7 +31,7 @@ public class AccountController {
         return accountService.infoList();
     }
 
-    @GetMapping("/list")
+    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String orderList(@RequestBody Map<String, String> page){
         return accountService.orderList(page.get("page"), page.get("limit"));
     }

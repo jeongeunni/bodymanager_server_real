@@ -243,6 +243,7 @@ public class InbodyServiceImpl extends QuerydslRepositorySupport implements Inbo
 
     Inbody inbody = dtoTOEntity(inbodyDTO, member);
     inbodyRepository.save(inbody);
+
   }
 
   // ??

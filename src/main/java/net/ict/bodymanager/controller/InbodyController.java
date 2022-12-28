@@ -28,7 +28,7 @@ public class InbodyController {
 
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void register(@RequestBody InbodyDTO inbodyDTO) {
+    public String register(@RequestBody InbodyDTO inbodyDTO) {
 
         LocalDate today = LocalDate.now();
 
@@ -39,14 +39,13 @@ public class InbodyController {
             inbodyService.register(inbodyDTO);
             object.put("message", "ok");
 
-//            Map<String , String> resultMap = Map.of("message", "ok");
-//            return ResponseEntity.ok(resultMap);
+
         } else {
             inbodyService.modify(inbodyDTO);
             object.put("message", "ok");
-//            Map<String , String> resultMap = Map.of("message", "ok");
-//            return ResponseEntity.ok(resultMap);
+
         }
+        return object.toString();
     }
 
     @PostMapping(value = "/part", consumes = MediaType.APPLICATION_JSON_VALUE)
