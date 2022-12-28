@@ -33,9 +33,10 @@ public class FoodController {
 //    }
 
     @PostMapping(value = "/register", consumes = {"multipart/form-data"})
-    public void registerPost(@ModelAttribute FoodRequestDTO foodRequestDTO){
+    public String registerPost(@ModelAttribute FoodRequestDTO foodRequestDTO){
 
-         foodService.register(foodRequestDTO);
+//         foodService.register(foodRequestDTO);
+        return foodService.register(foodRequestDTO);
     }
 
     @PostMapping(value = "/list", produces = "application/text;charset=UTF-8")
@@ -44,11 +45,11 @@ public class FoodController {
     }
 
     @PostMapping(value = "/modify", consumes = {"multipart/form-data"})
-    public void modify(@ModelAttribute FoodModifyRequestDTO foodDTO){
+    public String modify(@ModelAttribute FoodModifyRequestDTO foodDTO){
 
         log.info("******************************************");
         log.info(foodDTO.getFood_id()+"***********************************");
-         foodService.modify(foodDTO);
+        return foodService.modify(foodDTO);
 
     }
 
