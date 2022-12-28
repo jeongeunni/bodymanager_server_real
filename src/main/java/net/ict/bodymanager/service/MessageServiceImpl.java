@@ -128,25 +128,33 @@ public class MessageServiceImpl implements MessageService {
     QMember member = QMember.member;
     QPTInfo ptInfo = QPTInfo.pTInfo;
 
-    // 로그인 - 회원일 경우 - 상대가 트레이너
     List<Tuple> trainerList = jpaQueryFactory.select(member.member_id, member.name, member.profile)
             .from(member)
             .where(member.type.eq("user"))
             .fetch();
 
-    List<Tuple> memberList = jpaQueryFactory.select(member.member_id, member.name, member.profile)
-            .from(member)
-            .where(member.member_id
-                    .in(jpaQueryFactory.select(ptMember.member.member_id).from(ptMember).where(ptMember.ptInfo.pt_id
-                            .in(jpaQueryFactory.select(ptInfo.pt_id).from(ptInfo).where(ptInfo.trainer.member_id.eq(id.get().getMember_id())))))).fetch();
 
+    List<Tuple> trainer = jpaQueryFactory.select(member.member_id, member.name, member.profile)
+            .from(member)
+            .where(member.type.eq("trainer"))
+            .fetch();
 
     JSONArray array = new JSONArray();
     JSONObject object = null;
     JSONObject data = null;
 
-    // 타입이 0일 경우 일반 회원
     if (id.get().getType().equals("user")) {
+      for (int i = 0; i < trainer.size(); i++) {
+        object = new JSONObject();
+        object.put("member_id", trainer.get(i).toArray()[0]);
+        object.put("receiver_name", trainer.get(i).toArray()[1]);
+        object.put("receiver_profile", trainer.get(i).toArray()[2]);
+        array.put(object);
+      }
+      data = new JSONObject();
+      data.put("data", array);
+      data.put("message", "ok");
+    } else {
       for (int i = 0; i < trainerList.size(); i++) {
         object = new JSONObject();
         object.put("member_id", trainerList.get(i).toArray()[0]);
@@ -157,17 +165,7 @@ public class MessageServiceImpl implements MessageService {
       data = new JSONObject();
       data.put("data", array);
       data.put("message", "ok");
-    } else {
-      for (int i = 0; i < memberList.size(); i++) {
-        object = new JSONObject();
-        object.put("member_id", memberList.get(i).toArray()[0]);
-        object.put("receiver_name", memberList.get(i).toArray()[1]);
-        object.put("receiver_profile", memberList.get(i).toArray()[2]);
-        array.put(object);
-      }
-      data = new JSONObject();
-      data.put("data", array);
-      data.put("message", "ok");
+
     }
 
     return data.toString();

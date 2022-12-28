@@ -141,27 +141,31 @@ public class AccountServiceImpl implements AccountService {
 
     StringTemplate dateFormat = Expressions.stringTemplate("DATE_FORMAT( {0}, {1} )", orderInfo.created_at, ConstantImpl.create("%Y-%m-%d"));
 
-    List<Tuple> count = jpaQueryFactory.select(dateFormat, orderInfo.order_id).from(orderInfo).where(orderInfo.member.member_id.eq(member.getMember_id())).offset(Long.parseLong(page)).limit(Long.parseLong(limit)).orderBy(dateFormat.desc()).fetch();
-
-    List<String> dateList = jpaQueryFactory.select(dateFormat).distinct().from(orderInfo).where(orderInfo.member.member_id.eq(member.getMember_id()))
-            .orderBy(dateFormat.asc()).fetch();
-
-    List<Tuple> priceOrder = jpaQueryFactory.select(dateFormat, price.price_name, price.price_info, purchase.orderInfo.order_id)
-            .from(purchase).join(purchase.orderInfo, orderInfo).join(purchase.price, price)
-            .where(orderInfo.member.member_id.eq(member.getMember_id()))
-            .fetch();
-
-    List<Tuple> ptOrder = jpaQueryFactory.select(dateFormat, ptMember.pt_total_count, ptInfo.pt_price, purchase.orderInfo.order_id)
-            .from(ptMember)
-            .join(ptMember.ptInfo, ptInfo)
-            .leftJoin(orderInfo).on(ptMember.member.member_id.eq(orderInfo.member.member_id))
-            .leftJoin(purchase).on(ptMember.ptInfo.pt_id.eq(purchase.ptInfo.pt_id))
-            .where(orderInfo.member.member_id.eq(member.getMember_id()).and(purchase.orderInfo.order_id.eq(orderInfo.order_id)))
-            .fetch();
-
     int total_count = jpaQueryFactory.selectFrom(purchase).join(purchase.orderInfo, orderInfo).where(orderInfo.member.member_id.eq(member.getMember_id())).fetch().size();
 
-    log.info(total_count);
+    List<Tuple> list = jpaQueryFactory.select(purchase.period, dateFormat, purchase.price.price_id, price.price_info, price.price_name, purchase.ptInfo.pt_id, ptInfo.pt_price)
+            .from(purchase)
+            .join(purchase.orderInfo, orderInfo)
+            .leftJoin(price).on(purchase.price.price_id.eq(price.price_id))
+            .leftJoin(ptInfo).on(purchase.ptInfo.pt_id.eq(ptInfo.pt_id))
+            .where(orderInfo.member.member_id.eq(member.getMember_id()))
+            .orderBy(purchase.purchase_id.desc())
+            .offset(Long.parseLong(page))
+            .limit(Long.parseLong(limit))
+            .fetch();
+
+    List<String> dateInfo = jpaQueryFactory.select(dateFormat)
+            .from(purchase)
+            .join(purchase.orderInfo, orderInfo)
+            .where(orderInfo.member.member_id.eq(member.getMember_id()))
+            .orderBy(dateFormat.desc())
+            .offset(Long.parseLong(page))
+            .limit(Long.parseLong(limit))
+            .fetch();
+
+    log.info(dateInfo);
+
+    log.info(list);
 
     JSONArray orderArr = null;
 
@@ -171,44 +175,36 @@ public class AccountServiceImpl implements AccountService {
 
     JSONObject data = new JSONObject();
 
-    for (int i = 0 ; i < dateList.size() ; i++) {
+    for (int j = 0; j < dateInfo.size(); j++) {
 
-      if (LocalDate.parse(dateList.get(i)).isAfter(LocalDate.parse(count.get(count.size() -1).toArray()[0].toString())) || LocalDate.parse(dateList.get(i)).isEqual(LocalDate.parse(count.get(count.size() -1).toArray()[0].toString())) ) {
+      orderArr = new JSONArray();
+      for (int i = 0; i < list.size(); i++) {
 
-        orderArr = new JSONArray();
+        if (dateInfo.get(j).equals(list.get(i).toArray()[1])) {
 
-        for (int j = 0; j < priceOrder.size(); j++) {
+          orderObj = new JSONObject();
 
-          for (int n = 0; n < count.size(); n++) {
-            if (count.get(n).toArray()[0].toString().equals(dateList.get(i)) && count.get(n).toArray()[1].toString().equals(priceOrder.get(j).toArray()[3].toString())) {
-              orderObj = new JSONObject();
-              orderObj.put("sub_type", priceOrder.get(j).toArray()[1]);
-              orderObj.put("price_info", priceOrder.get(j).toArray()[2]);
-              orderArr.put(orderObj);
-            }
-            dateObj.put(dateList.get(i), orderArr);
+          if (list.get(i).toArray()[2] == null) {
+            orderObj.put("sub_type", "pt " + list.get(i).toArray()[0] + "회");
+            orderObj.put("price_info",  Integer.parseInt(list.get(i).toArray()[6].toString()) * Integer.parseInt(list.get(i).toArray()[0].toString()));
+          } else if (list.get(i).toArray()[5] == null) {
+            orderObj.put("sub_type", list.get(i).toArray()[4]);
+            orderObj.put("price_info", Integer.parseInt(list.get(i).toArray()[3].toString()) * Integer.parseInt(list.get(i).toArray()[0].toString()));
           }
+          orderArr.put(orderObj);
         }
 
-        for (int m = 0; m < ptOrder.size(); m++) {
-
-          for (int a = 0; a < count.size(); a++) {
-            if (count.get(a).toArray()[0].toString().equals(dateList.get(i)) && count.get(a).toArray()[1].toString().equals(ptOrder.get(m).toArray()[3].toString())) {
-              orderObj = new JSONObject();
-              orderObj.put("sub_type", "pt " + ptOrder.get(m).toArray()[1] + "회");
-              orderObj.put("price_info", ptOrder.get(m).toArray()[2]);
-              orderArr.put(orderObj);
-            }
-            dateObj.put(dateList.get(i), orderArr);
-          }
-        }
       }
+      dateObj.put(list.get(j).toArray()[1].toString(), orderArr);
+
     }
     dateObj.put("total_count", total_count);
     data.put("data", dateObj);
     data.put("message", "ok");
+    log.info(data);
 
     return data.toString();
+
   }
 
   @Override
@@ -232,10 +228,6 @@ public class AccountServiceImpl implements AccountService {
     List<Tuple> cab = jpaQueryFactory.select(qcabinet.end_date, qcabinet.member.member_id).from(qcabinet).where(qcabinet.member.member_id.eq(member.getMember_id())).orderBy(qcabinet.end_date.desc()).fetch();
 
     List<Tuple> ptMem = jpaQueryFactory.select(qptMember.start_date, qptMember.pt_total_count, qptMember.pt_remain_count, qptMember.member.member_id).from(qptMember).where(qptMember.member.member_id.eq(member.getMember_id())).orderBy(qptMember.start_date.desc()).fetch();
-
-    List<Long> suitId = jpaQueryFactory.select(qPrice.price_id).from(qPrice).where(qPrice.price_name.eq("운동복")).fetch();
-    List<Long> capId = jpaQueryFactory.select(qPrice.price_id).from(qPrice).where(qPrice.price_name.eq("캐비넷")).fetch();
-
 
     LocalDate today = LocalDate.now();
 
@@ -266,41 +258,50 @@ public class AccountServiceImpl implements AccountService {
         Purchase purchase = dtoToEntityPurchase(o, ptInfo, orderInfo, price);
         purchaseRepository.save(purchase);
 
-        if (suit_end.isEmpty() && Long.valueOf(id) == suitId.get(0)) {
-          Subscribe subscribe = dtoToEntitySub(o, member);
-          subscribeRepository.save(subscribe);
+        switch (id){
+          case "1" :  // 캐비넷
+            if (cab.isEmpty()) {  // 신규
+              Cabinet cabinet = dtoToEntityCab(o, member);
+              cabinetRepository.save(cabinet);
+            } else if (LocalDate.parse(cab.get(0).toArray()[0].toString()).isBefore(today)){
+              cabinetRepository.updateCab_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+            } else {
+              cabinetRepository.updateCab_after(LocalDate.parse(cab.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
+            }
+            break;
 
-        } else if (mem_end.isEmpty() && (Long.valueOf(id) != capId.get(0) && Long.valueOf(id) != suitId.get(0))) {
-          Subscribe subscribe = dtoToEntitySub(o, member);
-          subscribeRepository.save(subscribe);
+          case "2" :  // 운동복
+            if (suit_end.isEmpty()) {
+              Subscribe suit = dtoToEntitySub(o, member);
+              subscribeRepository.save(suit);
+            }else if (LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isBefore(today)){
+              subscribeRepository.updateSuit_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+            }else {
+              subscribeRepository.updateSuit_after(LocalDate.parse(suit_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
+            }
+            break;
 
-        } else if (cab.isEmpty() && Long.valueOf(id) == capId.get(0)) {
-          Cabinet cabinet = dtoToEntityCab(o, member);
-          cabinetRepository.save(cabinet);
+          case "3" :
+            if (mem_end.isEmpty()) {
+              Subscribe subscribe = dtoToEntitySub(o, member);
+              subscribeRepository.save(subscribe);
+            }else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
+              subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusDays(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+            }else {
+              subscribeRepository.updateMemShip_after(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).plusDays((Long.parseLong(count))), member.getMember_id());
+            }
+            break;
 
-        } else if ((mem_end.get(0).toArray()[1] == member.getMember_id()) && (Long.valueOf(id) != capId.get(0) && Long.valueOf(id) != suitId.get(0)) && mem_end.get(0).toArray()[0] == null) {
-          subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
-
-        } else if ((mem_end.get(0).toArray()[1] == member.getMember_id()) && (Long.valueOf(id) != capId.get(0) && Long.valueOf(id) != suitId.get(0)) && LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)) {
-          subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
-
-        } else if ((mem_end.get(0).toArray()[1] == member.getMember_id()) && (Long.valueOf(id) != capId.get(0) && Long.valueOf(id) != suitId.get(0)) && (LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isAfter(today) || LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isEqual(today))) {
-          subscribeRepository.updateMemShip_after(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
-
-        } else if ((suit_end.get(0).toArray()[1] == member.getMember_id()) && Long.valueOf(id) != capId.get(0) && suit_end.get(0).toArray()[0] == null) {
-          subscribeRepository.updateSuit_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
-
-        } else if ((suit_end.get(0).toArray()[1] == member.getMember_id()) && Long.valueOf(id) != capId.get(0) && LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isBefore(today)) {
-          subscribeRepository.updateSuit_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
-
-        } else if ((suit_end.get(0).toArray()[1] == member.getMember_id()) && Long.valueOf(id) != capId.get(0) && (LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isAfter(today) || LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isEqual(today))) {
-          subscribeRepository.updateSuit_after(LocalDate.parse(suit_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
-
-        } else if ((cab.get(0).toArray()[1] == member.getMember_id()) && Long.valueOf(id) == capId.get(0) && LocalDate.parse(cab.get(0).toArray()[0].toString()).isBefore(today)) {
-          cabinetRepository.updateCab_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
-
-        } else if ((cab.get(0).toArray()[1] == member.getMember_id()) && Long.valueOf(id) == capId.get(0) && (LocalDate.parse(cab.get(0).toArray()[0].toString()).isAfter(today) || LocalDate.parse(cab.get(0).toArray()[0].toString()).isEqual(today))) {
-          cabinetRepository.updateCab_after(LocalDate.parse(cab.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
+          default:
+            if (mem_end.isEmpty()) {
+              Subscribe subscribe = dtoToEntitySub(o, member);
+              subscribeRepository.save(subscribe);
+            }else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
+              subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+            }else {
+              subscribeRepository.updateMemShip_after(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
+            }
+            break;
         }
 
       } else if (type.equals("pt")) {
