@@ -3,16 +3,18 @@ package net.ict.bodymanager.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.controller.advice.ApiControllerAdvice;
-import net.ict.bodymanager.controller.dto.InbodyDTO;
-import net.ict.bodymanager.controller.dto.InbodyRequestDTO;
+import net.ict.bodymanager.dto.InbodyDTO;
+import net.ict.bodymanager.dto.InbodyRequestDTO;
 import net.ict.bodymanager.service.InbodyService;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/inbody")
