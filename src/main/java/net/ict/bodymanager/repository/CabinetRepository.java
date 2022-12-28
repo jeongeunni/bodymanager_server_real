@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 public interface CabinetRepository extends JpaRepository<Cabinet, Long> {
 
+    // 기존 cabinet이 없는 경우
     @Modifying
     @Query(value = "UPDATE Cabinet c SET c.end_date = :cab_end , c.start_date = :cab_start where c.member.member_id = :mem_id" )
     @Transactional

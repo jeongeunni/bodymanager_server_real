@@ -71,7 +71,7 @@ public interface AccountService {
 
     default Subscribe dtoToEntitySub(OrderListDTO.OrderRequestDTO o, Member member){
 
-        if (o.getId().equals("4")) {
+        if (o.getId().equals("2")) {
             Subscribe subscribe = Subscribe.builder()
                     .suit_end(LocalDate.parse(o.getStart()).plusMonths(Long.parseLong(o.getCount())))
                     .suit_start(LocalDate.parse(o.getStart()))
