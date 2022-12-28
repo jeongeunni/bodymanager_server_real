@@ -4,8 +4,8 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.controller.TokenHandler;
-import net.ict.bodymanager.controller.dto.InbodyDTO;
-import net.ict.bodymanager.controller.dto.InbodyRequestDTO;
+import net.ict.bodymanager.dto.InbodyDTO;
+import net.ict.bodymanager.dto.InbodyRequestDTO;
 import net.ict.bodymanager.entity.Inbody;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.entity.QInbody;
@@ -18,8 +18,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.*;
@@ -30,17 +34,15 @@ import java.util.*;
 @Log4j2
 public class InbodyServiceImpl extends QuerydslRepositorySupport implements InbodyService {
 
-  public InbodyServiceImpl(InbodyRepository inbodyRepository, MemberRepository memberRepository, JwtTokenProvider jwtTokenProvider, ModelMapper modelMapper, TokenHandler tokenHandler) {
+  public InbodyServiceImpl(InbodyRepository inbodyRepository, MemberRepository memberRepository, ModelMapper modelMapper, TokenHandler tokenHandler) {
     super(Inbody.class);
     this.inbodyRepository = inbodyRepository;
     this.memberRepository = memberRepository;
-    this.jwtTokenProvider = jwtTokenProvider;
     this.tokenHandler = tokenHandler;
   }
 
   private final InbodyRepository inbodyRepository;
   private final MemberRepository memberRepository;
-  private final JwtTokenProvider jwtTokenProvider;
   private final TokenHandler tokenHandler;
 
   @Autowired
@@ -48,19 +50,6 @@ public class InbodyServiceImpl extends QuerydslRepositorySupport implements Inbo
 
   @Override
   public String musclePart(InbodyRequestDTO inbodyRequestDTO) {
-
-/*    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-            .getRequestAttributes()).getRequest();
-    log.info("request.getCookies()" + request.getCookies());
-    log.info("request.getHeaderNames()" + request.getHeaderNames());
-    String token = jwtTokenProvider.resolveToken(request);
-    String email = jwtTokenProvider.getUserPk(token);
-    Member member_find = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("정보 없음"));
-    Long member_id = member_find.getMember_id();
-    System.out.println("+++++++++++++++++++++++++++++++++++memeber : " + member_id);  //20 이런식으러
-
-    Member member = memberRepository.getById(member_id);*/
 
     Long member_id = tokenHandler.getIdFromToken();
     Member member = memberRepository.getById(member_id);

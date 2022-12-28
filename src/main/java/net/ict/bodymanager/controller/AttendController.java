@@ -2,7 +2,7 @@ package net.ict.bodymanager.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.ict.bodymanager.controller.dto.AttendDTO;
+import net.ict.bodymanager.dto.AttendDTO;
 import net.ict.bodymanager.service.AttendService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
@@ -31,18 +31,10 @@ public class AttendController {
         return ResponseEntity.ok(result);
     }
 
-//    @PostMapping(value ="/modify")  //, consumes = MediaType.APPLICATION_JSON_VALUE) 퇴장
-//    public ResponseEntity<Map<String, String>>modify(){
-//        attendService.modify();
-//        Map<String,String> result = Map.of("message","ok");
-//        return ResponseEntity.ok(result);
-//    }
-
     @GetMapping(value = "/readDay")
     public String readDay(){
         return attendService.readDay();
     }
-
 
     @PostMapping(value = "/readmonth")
     public String readMonth(@RequestBody Map<String, Object > map){

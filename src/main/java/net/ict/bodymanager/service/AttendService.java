@@ -1,6 +1,6 @@
 package net.ict.bodymanager.service;
 
-import net.ict.bodymanager.controller.dto.AttendDTO;
+import net.ict.bodymanager.dto.AttendDTO;
 import net.ict.bodymanager.entity.Attend;
 import net.ict.bodymanager.entity.Member;
 

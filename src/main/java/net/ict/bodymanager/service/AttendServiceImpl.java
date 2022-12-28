@@ -8,7 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.controller.TokenHandler;
-import net.ict.bodymanager.controller.dto.AttendDTO;
+import net.ict.bodymanager.dto.AttendDTO;
 import net.ict.bodymanager.entity.Attend;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.entity.QAttend;

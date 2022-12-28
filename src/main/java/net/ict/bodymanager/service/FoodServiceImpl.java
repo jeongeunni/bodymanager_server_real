@@ -8,13 +8,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.ict.bodymanager.controller.TokenHandler;
-import net.ict.bodymanager.controller.dto.FoodModifyRequestDTO;
-import net.ict.bodymanager.controller.dto.FoodRequestDTO;
+import net.ict.bodymanager.dto.FoodModifyRequestDTO;
+import net.ict.bodymanager.dto.FoodRequestDTO;
 import net.ict.bodymanager.entity.*;
 import net.ict.bodymanager.repository.FoodRepository;
 import net.ict.bodymanager.repository.MemberRepository;
 import net.ict.bodymanager.util.LocalUploader;
 import net.ict.bodymanager.util.S3Uploader;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class FoodServiceImpl implements FoodService {
     EntityManager entityManager;
 
     @Override
-    public void register(FoodRequestDTO foodRequestDTO) {
+    public String register(FoodRequestDTO foodRequestDTO) {
         Long member_id = tokenHandler.getIdFromToken();
         Member member = memberRepository.getById(member_id);
 
@@ -67,12 +68,11 @@ public class FoodServiceImpl implements FoodService {
         }
 
 
-//        return object.toString();
+        return object.toString();
     }
 
     @Override
-    public void modify(FoodModifyRequestDTO foodDTO) {
-
+    public String modify(FoodModifyRequestDTO foodDTO) {
 
         Long member_id = tokenHandler.getIdFromToken();
         Member member = memberRepository.getById(member_id);
@@ -85,12 +85,6 @@ public class FoodServiceImpl implements FoodService {
                 .from(qFood)
                 .where(qFood.member.member_id.eq(member.getMember_id()).and(qFood.food_id.eq(foodDTO.getFood_id())))
                 .fetch();
-
-//        List<String> timeselect = queryFactory
-//                .select(qFood.time)
-//                .from(qFood)
-//                .where(qFood.member.member_id.eq(member.getMember_id()).and(qFood.time.eq(foodDTO.getTime())))
-//                .fetch();
 
         JSONObject object = new JSONObject();
         if(modifyselect.isEmpty()){
@@ -107,7 +101,7 @@ public class FoodServiceImpl implements FoodService {
         }
 
 
-//        return object.toString();
+        return object.toString();
 
     }
 
@@ -144,8 +138,7 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public String readOne(String date) {
         Long member_id = tokenHandler.getIdFromToken();
-
-        log.info("--------------------------------------------------------------------"+member_id);
+        String[] a = {"breakfast", "lunch", "dinner"};
 
         QFood food = QFood.food;
         QMember member = QMember.member;
@@ -154,83 +147,46 @@ public class FoodServiceImpl implements FoodService {
         StringTemplate dateFormat = Expressions.stringTemplate("DATE_FORMAT( {0}, {1} )", food.created_at, ConstantImpl.create("%Y-%m-%d"));
         StringTemplate timeFormat = Expressions.stringTemplate("DATE_FORMAT( {0}, {1} )", food.created_at, ConstantImpl.create("%H:%i %p"));
 
-        List<Tuple> readbreakfast = queryFactory
-                .select(food.food_id, food.food_img, food.content, timeFormat, food.grade)
-                .from(food)
-                .leftJoin(member).on(food.member.member_id.eq(member.member_id))
-                .where(dateFormat.eq(date).and(food.member.member_id.eq(member_id)).and(food.time.eq("아침")))
-                .fetch();
-
-
-        List<Tuple> readlunch = queryFactory
-                .select(food.food_id, food.food_img, food.content, timeFormat, food.grade)
-                .from(food)
-                .leftJoin(member).on(food.member.member_id.eq(member.member_id))
-                .where(dateFormat.eq(date).and(food.member.member_id.eq(member_id)).and(food.time.eq("점심")))
-                .fetch();
-
-        List<Tuple> readdinner = queryFactory
-                .select(food.food_id, food.food_img, food.content, timeFormat, food.grade)
-                .from(food)
-                .leftJoin(member).on(food.member.member_id.eq(member.member_id))
-                .where(dateFormat.eq(date).and(food.member.member_id.eq(member_id)).and(food.time.eq("저녁")))
-                .fetch();
-
         JSONObject object = null;
 
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
+        JSONObject obj = new JSONObject();
 
-        if(readbreakfast.isEmpty() && readlunch.isEmpty() && readdinner.isEmpty()){
-            jsonObject.put("message", "empty");
-            jsonObject.put("data",data);
+        for(int i=0;i<a.length;i++) {
+            List<Tuple> readfood = queryFactory
+                    .select(food.food_id, food.food_img, food.content, timeFormat, food.grade)
+                    .from(food)
+                    .leftJoin(member).on(food.member.member_id.eq(member.member_id))
+                    .where(dateFormat.eq(date).and(food.member.member_id.eq(member_id)).and(food.time.eq(a[i])))
+                    .fetch();
 
-        }
-        else {
 
-
-            for (int i = 0; i < readbreakfast.size(); i++) {
+            if (readfood.isEmpty()) {
                 object = new JSONObject();
-                object.put("id", readbreakfast.get(i).toArray()[0]);
-                object.put("photo", readbreakfast.get(i).toArray()[1].toString());
-                object.put("content", readbreakfast.get(i).toArray()[2].toString());
-                object.put("created_at", readbreakfast.get(i).toArray()[3].toString());
-                object.put("grade", readbreakfast.get(i).toArray()[4]);
-
-                data.put("breakfast", object);
-
-                log.info(data);
+                data.put(a[i], obj);
             }
-            for (int i = 0; i < readlunch.size(); i++) {
-                object = new JSONObject();
-                object.put("id", readlunch.get(i).toArray()[0]);
-                object.put("photo", readlunch.get(i).toArray()[1].toString());
-                object.put("content", readlunch.get(i).toArray()[2].toString());
-                object.put("created_at", readlunch.get(i).toArray()[3].toString());
-                object.put("grade", readlunch.get(i).toArray()[4]);
+            else {
+                for (int j = 0; j < readfood.size(); j++) {
 
-                data.put("lunch", object);
-            }
-            for (int i = 0; i < readdinner.size(); i++) {
-                object = new JSONObject();
-                object.put("id", readdinner.get(i).toArray()[0]);
-                object.put("photo", readdinner.get(i).toArray()[1].toString());
-                object.put("content", readdinner.get(i).toArray()[2].toString());
-                object.put("created_at", readdinner.get(i).toArray()[3].toString());
-                object.put("grade", readdinner.get(i).toArray()[4]);
+                    object = new JSONObject();
+                    object.put("id", readfood.get(j).toArray()[0]);
+                    object.put("photo", readfood.get(j).toArray()[1].toString());
+                    object.put("content", readfood.get(j).toArray()[2].toString());
+                    object.put("created_at", readfood.get(j).toArray()[3].toString());
+                    object.put("grade", readfood.get(j).toArray()[4]);
 
-                data.put("dinner", object);
+                    data.put(a[i], object);
+                }
             }
 
-            log.info(data);
-
-            jsonObject.put("data", data);
             jsonObject.put("message", "ok");
+            jsonObject.put("data", data);
         }
-
-        log.info(jsonObject);
 
         return jsonObject.toString();
+
+
     }
 
 }

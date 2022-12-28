@@ -1,5 +1,6 @@
 package net.ict.bodymanager.repository.search;
 
+import net.ict.bodymanager.dto.MemberListAllDTO;
 import net.ict.bodymanager.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

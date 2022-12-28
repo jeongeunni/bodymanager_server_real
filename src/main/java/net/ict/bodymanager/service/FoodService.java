@@ -1,8 +1,8 @@
 package net.ict.bodymanager.service;
 
 
-import net.ict.bodymanager.controller.dto.FoodModifyRequestDTO;
-import net.ict.bodymanager.controller.dto.FoodRequestDTO;
+import net.ict.bodymanager.dto.FoodModifyRequestDTO;
+import net.ict.bodymanager.dto.FoodRequestDTO;
 import net.ict.bodymanager.entity.Food;
 import net.ict.bodymanager.entity.Member;
 import net.ict.bodymanager.util.LocalUploader;
@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface FoodService {
-    void register(FoodRequestDTO foodRequestDTO);
+    String register(FoodRequestDTO foodRequestDTO);
 
     String readOne(String date);
 
     String remove(Long food_id);
 
-    void modify(FoodModifyRequestDTO foodDTO);
+    String modify(FoodModifyRequestDTO foodDTO);
 
 
     default Food dtoToEntity(FoodRequestDTO foodRequestDTO, Member member, LocalUploader localUploader, S3Uploader s3Uploader){
