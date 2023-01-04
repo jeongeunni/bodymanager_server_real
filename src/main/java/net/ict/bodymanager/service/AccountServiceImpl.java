@@ -237,6 +237,8 @@ public class AccountServiceImpl implements AccountService {
     OrderInfo orderInfo = dtoToEntityOrderInfo(member);
     orderRepository.save(orderInfo);
 
+    log.info(array + "arrayyy");
+
     for (int i = 0; i < array.length(); i++) {
       JSONObject result = array.getJSONObject(i);
       String id = result.getString("id");
@@ -274,7 +276,13 @@ public class AccountServiceImpl implements AccountService {
             if (suit_end.isEmpty()) {
               Subscribe suit = dtoToEntitySub(o, member);
               subscribeRepository.save(suit);
-            }else if (LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isBefore(today)){
+            }
+            else if (suit_end.get(0).toArray()[0] == null){
+              subscribeRepository.updateSuit_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+
+            }
+
+            else if (LocalDate.parse(suit_end.get(0).toArray()[0].toString()).isBefore(today)){
               subscribeRepository.updateSuit_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
             }else {
               subscribeRepository.updateSuit_after(LocalDate.parse(suit_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
@@ -285,7 +293,10 @@ public class AccountServiceImpl implements AccountService {
             if (mem_end.isEmpty()) {
               Subscribe subscribe = dtoToEntitySub(o, member);
               subscribeRepository.save(subscribe);
-            }else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
+            }else if(mem_end.get(0).toArray()[0] == null){
+              subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusDays(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+            }
+            else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
               subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusDays(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
             }else {
               subscribeRepository.updateMemShip_after(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).plusDays((Long.parseLong(count))), member.getMember_id());
@@ -296,7 +307,11 @@ public class AccountServiceImpl implements AccountService {
             if (mem_end.isEmpty()) {
               Subscribe subscribe = dtoToEntitySub(o, member);
               subscribeRepository.save(subscribe);
-            }else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
+            }else if(mem_end.get(0).toArray()[0] == null){
+              subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
+
+            }
+            else if(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).isBefore(today)){
               subscribeRepository.updateMemShip_before(LocalDate.parse(start).plusMonths(Long.parseLong(count)), LocalDate.parse(start), member.getMember_id());
             }else {
               subscribeRepository.updateMemShip_after(LocalDate.parse(mem_end.get(0).toArray()[0].toString()).plusMonths((Long.parseLong(count))), member.getMember_id());
